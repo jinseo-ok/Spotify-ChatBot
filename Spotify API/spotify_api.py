@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 import time
 import json
@@ -6,21 +7,31 @@ import base64
 import requests
 import pandas as pd
 import logging
+import csv
 
 global client_id
 global client_secret
 
-client_id = ''
-client_secret = ''
 
+with open(os.path.join('..', 'secret.json'), 'r') as f:
+    secret = json.load(f)
+client_id = secret['Spotify']['client_id']
+client_secret = secret['Spotify']['client_secret']
 
 def main():
-    artist_list = pd.read_csv('artist_list.csv', header = None)
-    artistID = [get_aritistID(artist) for artist in artist_list[0]]
-    print(artistID)
+    # artist_list = pd.read_csv('artist_list.csv', header = None)
+
+    artists = []
+    with open('artist_list.csv') as f:
+        line = csv.reader(f)
+        for l in line:
+            artists.append(l[0])
+
+    artistInfo = [get_artistInfo(artist) for artist in artists[:3]]
+    print(artistInfo)
 
 
-def get_API(url, params = None, headers):
+def get_API(url, headers, params = None):
     response = requests.get(url, params = params, headers = headers)
 
     try:
@@ -43,11 +54,10 @@ def get_headers(client_id, client_secret):
         "grant_type": "client_credentials"
     }
 
-    response = requests.post(endpoint, data=payload, headers=headers)   
+    response = requests.post(endpoint, data = payload, headers = headers)   
     data = json.loads(response.text)
 
     access_token = data['access_token']
-    print(access_token)
     headers = {
         "Authorization": "Bearer {}".format(access_token)
     }
@@ -55,10 +65,9 @@ def get_headers(client_id, client_secret):
     return headers
 
 
-def get_aritistID(query):
-    url = 'https://api.spotify.com/v1/search'
+def get_artistID(query):
+    endpoint = 'https://api.spotify.com/v1/search'
     headers = get_headers(client_id, client_secret)
-    print()
 
     params = {
         'q' : query,
@@ -67,8 +76,7 @@ def get_aritistID(query):
     }
 
     try:
-        # response = requests.get('https://api.spotify.com/v1/search', params = params, headers = headers)
-        response = get_API(url, params, headers)
+        response = get_API(endpoint, params = params, headers = headers)
     except:
         logging.error(response.text)
         sys.exit(1)
@@ -76,18 +84,19 @@ def get_aritistID(query):
     if response.status_code != 200:
 
         if response.status_code == 429:
+            logging.error(response.text)
             retry_time = json.loads(response.headers)['Retry-After']
             time.sleep(int(retry_time))
-            response = get_API(url, params, headers)
+            response = get_API(endpoint, params = params, headers = headers)
 
         elif response.status_code == 401:
+            logging.error(response.text)
             headers = get_headers(client_id, client_secret)
-            response = get_API(url, params, headers)
+            response = get_API(endpoint, params = params, headers = headers)
 
         else:
             print(response.status_code, 'error')
             logging.error(response.text)
-
         
     artistId = json.loads(response.text)['artists']['items'][0]['id']
     return artistId
@@ -95,19 +104,34 @@ def get_aritistID(query):
 
 def get_artistInfo(query):
     try:
-        artistId = get_aritistID(query)
+        artistId = get_artistID(query)
     except:
         print('cant get artist ID')
     
-    endpoint = f'https://api.spotify.com/v1/artists/{artistID}'
+    endpoint = 'https://api.spotify.com/v1/artists/{}'.format(artistId)
     headers = get_headers(client_id, client_secret)
 
-    response = get_API(endpoint, headers)
+    response = get_API(endpoint, headers = headers)
     data = json.loads(response.text)
-    
+    res = {}
+
+    res['id'] = artistId
+    res['name'] = data.get('name', None)
+    res['followers'] = data['followers'].get('total', None)
+    res['genres'] = '|'.join(data.get('genres', None))
+    res['popularity'] = data.get('popularity', None)
+    res['url'] = data.get('uri', None)
+    try:
+        res['img_url'] = data['images'].get('url', None)
+    except:
+        res['img_url'] = data['images'][0].get('url', None)
+
+    return res
+
+# def connect_DB()
 
 
-    response = requests.get(endpoint, headers=headers)
+    # response = requests.get(endpoint, headers=headers)
 
 
 
