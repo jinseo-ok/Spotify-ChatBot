@@ -14,7 +14,7 @@ global client_secret
 
 with open(os.path.join('..', 'secret.json'), 'r') as f:
     secret = json.load(f)
-    
+
 client_id = secret['Spotify']['client_id']
 client_secret = secret['Spotify']['client_secret']
 
@@ -127,16 +127,6 @@ def get_artistInfo(query):
         res['img_url'] = data['images'][0].get('url', None)
 
     return res
-
-# def connect_DB()
-
-
-    # response = requests.get(endpoint, headers=headers)
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
