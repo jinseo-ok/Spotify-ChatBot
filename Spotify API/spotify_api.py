@@ -10,8 +10,8 @@ import logging
 global client_id
 global client_secret
 
-client_id = '67efb4481c914d1c8e8df5120a48cc85'
-client_secret = '6f65f400c3c34159a344b87d98ad1314'
+client_id = ''
+client_secret = ''
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     print(artistID)
 
 
-def get_API(url, params, headers):
+def get_API(url, params = None, headers):
     response = requests.get(url, params = params, headers = headers)
 
     try:
@@ -89,8 +89,30 @@ def get_aritistID(query):
             logging.error(response.text)
 
         
-    artistID = json.loads(response.text)['artists']['items'][0]['id']
-    return artistID
+    artistId = json.loads(response.text)['artists']['items'][0]['id']
+    return artistId
+
+
+def get_artistInfo(query):
+    try:
+        artistId = get_aritistID(query)
+    except:
+        print('cant get artist ID')
+    
+    endpoint = f'https://api.spotify.com/v1/artists/{artistID}'
+    headers = get_headers(client_id, client_secret)
+
+    response = get_API(endpoint, headers)
+    data = json.loads(response.text)
+    
+
+
+    response = requests.get(endpoint, headers=headers)
+
+
+
+
+
 
 if __name__ == '__main__':
     main()
