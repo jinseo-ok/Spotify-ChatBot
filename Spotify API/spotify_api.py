@@ -106,7 +106,7 @@ def get_artistInfo(query):
     try:
         artistId = get_artistID(query)
     except:
-        print('cant get artist ID')
+        return 'ERROR'
     
     endpoint = 'https://api.spotify.com/v1/artists/{}'.format(artistId)
     headers = get_headers(client_id, client_secret)
