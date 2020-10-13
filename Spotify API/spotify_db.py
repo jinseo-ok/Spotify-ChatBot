@@ -9,8 +9,6 @@ from tqdm import tqdm
 global client_id
 global client_secret
 
-
-
 def main():
     with open(os.path.join('..', 'secret.json'), 'r') as f:
         secret = json.load(f)
@@ -55,13 +53,16 @@ def main():
     conn.commit()
     cursor.close()
 
-
+# INSERT
 def insertQue(cursor, data, table):
     columns = ', '.join(data.keys()) # table columns
     placeholders = ', '.join(['%s'] * len(data)) # values
     key_holders = ', '.join([k + '=%s' for k in data.keys()])
     que = "INSERT INTO {} ({}) VALUES ({}) ON DUPLICATE KEY UPDATE {}".format(table, columns, placeholders, key_holders)
     cursor.execute(que, list(data.values())*2)
+
+# DELETE
+
 
 if __name__ == '__main__':
     main()

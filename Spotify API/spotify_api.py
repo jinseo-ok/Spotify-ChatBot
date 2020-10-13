@@ -29,6 +29,7 @@ def main():
 
     artistInfo = [get_artistInfo(artist) for artist in artists[:3]]
 
+# API 접속
 def get_API(url, headers, params = None):
     response = requests.get(url, params = params, headers = headers)
 
@@ -38,7 +39,7 @@ def get_API(url, headers, params = None):
     except:
         return get_API(url, params, headers)
         
-
+# headers
 def get_headers(client_id, client_secret):
 
     endpoint = "https://accounts.spotify.com/api/token" # access token을 받기 위한 endpoint
@@ -62,7 +63,7 @@ def get_headers(client_id, client_secret):
 
     return headers
 
-
+# artist 아이디 수집
 def get_artistID(query):
     endpoint = 'https://api.spotify.com/v1/search'
     headers = get_headers(client_id, client_secret)
@@ -99,7 +100,7 @@ def get_artistID(query):
     artistId = json.loads(response.text)['artists']['items'][0]['id']
     return artistId
 
-
+# artist 정보 수집
 def get_artistInfo(query):
     try:
         artistId = get_artistID(query)
