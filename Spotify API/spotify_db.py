@@ -4,16 +4,19 @@ import sys
 import json
 import pymysql
 import spotify_api as api
+from tqdm import tqdm
 
 global client_id
 global client_secret
 
-client_id = secret['Spotify']['client_id']
-client_secret = secret['Spotify']['client_secret']
+
 
 def main():
     with open(os.path.join('..', 'secret.json'), 'r') as f:
         secret = json.load(f)
+
+    client_id = secret['Spotify']['client_id']
+    client_secret = secret['Spotify']['client_secret']
 
     host = secret['Spotify']['host']
     port = secret['Spotify']['port']
@@ -37,11 +40,11 @@ def main():
             artists.append(l[0])
     
     # api 수집
-    for artist in artists:
-        res = api.get_artistInfo(client_id, client_secret, artist)
+    for artist in tqdm(artists):
+        res = api.get_artistInfo(artist)
         if res != 'ERROR':
 
-            genres_list = [[res['id'], genre] for genre in res['genres'].split('|')]
+            genres_list = [{'artist_id' : res['id'], 'genre' : genre} for genre in res['genres'].split('|')]
 
             for data in genres_list:
                 insertQue(cursor, data, 'artist_genres')
@@ -49,13 +52,17 @@ def main():
             del res['genres']
             insertQue(cursor, res, 'artists')
 
+    conn.commit()
+    cursor.close()
+
 
 def insertQue(cursor, data, table):
-    col = ', '.join(data.keys())
-    placeholders = ', '.join(['%s'] * len(data))
+    columns = ', '.join(data.keys()) # table columns
+    placeholders = ', '.join(['%s'] * len(data)) # values
     key_holders = ', '.join([k + '=%s' for k in data.keys()])
-    que = "INSERT INTO {} ({}) VALUES ({}) ON DUPLICATE KEY UPDATE {}".format(table, col, placeholders, key_holders)
+    que = "INSERT INTO {} ({}) VALUES ({}) ON DUPLICATE KEY UPDATE {}".format(table, columns, placeholders, key_holders)
     cursor.execute(que, list(data.values())*2)
 
-
+if __name__ == '__main__':
+    main()
 

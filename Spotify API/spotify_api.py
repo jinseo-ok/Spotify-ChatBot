@@ -28,8 +28,6 @@ def main():
             artists.append(l[0])
 
     artistInfo = [get_artistInfo(artist) for artist in artists[:3]]
-    print(artistInfo)
-
 
 def get_API(url, headers, params = None):
     response = requests.get(url, params = params, headers = headers)
@@ -122,9 +120,9 @@ def get_artistInfo(query):
     res['popularity'] = data.get('popularity', None)
     res['url'] = data.get('uri', None)
     try:
-        res['img_url'] = data['images'].get('url', None)
+        res['image_url'] = data['images'][0].get('url', None)
     except:
-        res['img_url'] = data['images'][0].get('url', None)
+        res['image_url'] = None
 
     return res
 
