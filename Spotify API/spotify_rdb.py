@@ -16,19 +16,16 @@ def main():
     client_id = secret['Spotify']['client_id']
     client_secret = secret['Spotify']['client_secret']
 
-    host = secret['Spotify']['host']
-    port = secret['Spotify']['port']
-    username = secret['Spotify']['username']
-    database = secret['Spotify']['database']
-    pw = secret['Spotify']['pw']
+    db_params = {
+        host : secret['Spotify']['host']
+        port : secret['Spotify']['port']
+        username : secret['Spotify']['username']
+        database : secret['Spotify']['database']
+        pw : secret['Spotify']['pw']
+    }
 
     # DB 접속
-    try:
-        conn = pymysql.connect(host, user = username, passwd = pw, db = database, port = port,
-                           use_unicode = True, charset = 'utf8')
-        cursor = conn.cursor()
-    except:
-        sys.exit(1)
+    cursor = connectDB(**db_params)
 
     # api 수집 artists 목록
     artists = []
@@ -52,6 +49,24 @@ def main():
 
     conn.commit()
     cursor.close()
+
+# CONNECT
+def connectDB(host, username, pw, database, port):
+    try:
+        conn = pymysql.connect(host = host,
+                                user = username,
+                                passwd = pw,
+                                db = database,
+                                port = port,
+                                use_unicode = True,
+                                charset = 'utf8')
+        cursor = conn.cursor()
+    except:
+        print('DB connect error')
+        sys.exit(1)
+
+    return cursor
+
 
 # INSERT
 def insertQue(cursor, data, table):

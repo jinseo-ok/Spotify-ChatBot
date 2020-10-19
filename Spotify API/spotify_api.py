@@ -36,6 +36,7 @@ def get_API(url, headers, params = None):
     try:
         response.json()
         return response
+
     except:
         return get_API(url, params, headers)
         
@@ -127,6 +128,17 @@ def get_artistInfo(query):
         res['image_url'] = None
 
     return res
+
+# 앨범 track 정보 수집
+def get_tracks(artist_id, params):
+    headers = get_headers(client_id, client_secret)
+    endpoint = 'https://api.spotify.com/v1/artists/{id}/top-tracks'.format(artist_id)
+
+    response = get_API(endpoint, params = params, headers = headers)
+    data = response.json()
+    tracks = data['track']
+
+    return tracks
 
 if __name__ == '__main__':
     main()
