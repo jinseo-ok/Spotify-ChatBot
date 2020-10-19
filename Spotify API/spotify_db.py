@@ -40,7 +40,7 @@ def main():
     # api 수집
     for artist in tqdm(artists):
         res = api.get_artistInfo(artist)
-        if res != 'ERROR':
+        if res != 'ID error':
 
             genres_list = [{'artist_id' : res['id'], 'genre' : genre} for genre in res['genres'].split('|')]
 
@@ -62,7 +62,6 @@ def insertQue(cursor, data, table):
     cursor.execute(que, list(data.values())*2)
 
 # DELETE
-
 
 if __name__ == '__main__':
     main()

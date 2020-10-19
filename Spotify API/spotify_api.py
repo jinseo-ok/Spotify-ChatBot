@@ -79,6 +79,7 @@ def get_artistID(query):
     except:
         logging.error(response.text)
         sys.exit(1)
+        return 'ID error'
 
     if response.status_code != 200:
 
@@ -105,7 +106,7 @@ def get_artistInfo(query):
     try:
         artistId = get_artistID(query)
     except:
-        return 'ERROR'
+        return 'ID error'
     
     endpoint = 'https://api.spotify.com/v1/artists/{}'.format(artistId)
     headers = get_headers(client_id, client_secret)
