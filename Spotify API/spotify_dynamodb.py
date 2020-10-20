@@ -53,7 +53,6 @@ def main():
             data.update(track)
             table.put_item(Item = data)
 
-
 def connectDynamo():
     try:
         dynamodb = boto3.resource('dynamodb',
@@ -65,7 +64,8 @@ def connectDynamo():
 
     return dynamodb
 
-
+if __name__ == '__main__':
+    main()
 
     
 
