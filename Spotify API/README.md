@@ -1,5 +1,4 @@
 # Spotify API
 
 ## ERD
-
-![ERD](./Spotify-API ERD.png)
+<img src = "Spotify-API ERD.png">
