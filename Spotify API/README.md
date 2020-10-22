@@ -2,4 +2,4 @@
 
 ## ERD
 
-![ERD](./Spotify-API ERD.png)
+![ERD](./Spotify-API ERD.PNG)
