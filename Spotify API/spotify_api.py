@@ -54,8 +54,13 @@ def get_headers(client_id, client_secret):
         "grant_type": "client_credentials"
     }
 
-    response = requests.post(endpoint, data = payload, headers = headers)   
-    data = json.loads(response.text)
+    response = requests.post(endpoint, data = payload, headers = headers)
+    try:
+        data = json.loads(response.text)
+    except:
+        time.sleep(1)
+        response = requests.post(endpoint, data = payload, headers = headers)
+        data = json.loads(response.text)
 
     access_token = data['access_token']
     headers = {
@@ -146,7 +151,7 @@ def get_audio(artist_id):
 
     response = get_API(endpoint, headers = headers)
     data = response.json()
-    audio = data['audio_reatures']
+    audio = data['audio_features']
 
     return audio
 

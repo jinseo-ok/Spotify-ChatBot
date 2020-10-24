@@ -11,6 +11,7 @@ import pandas as pd
 import jsonpath
 import spotify_api as api
 import spotify_rdb as rdb
+from tqdm import tqdm
 
 global client_id
 global client_secret
@@ -21,13 +22,13 @@ with open(os.path.join('..', 'secret.json'), 'r') as f:
 client_id = secret['Spotify']['client_id']
 client_secret = secret['Spotify']['client_secret']
 
-# db_params = {
-#     'host' : secret['Spotify']['host'],
-#     'port' : secret['Spotify']['port'],
-#     'username' : secret['Spotify']['username'],
-#     'database' : secret['Spotify']['database'],
-#     'pw' : secret['Spotify']['pw']
-# }
+db_params = {
+    'host' : secret['Spotify']['host'],
+    'port' : secret['Spotify']['port'],
+    'username' : secret['Spotify']['username'],
+    'database' : secret['Spotify']['database'],
+    'pw' : secret['Spotify']['pw']
+}
 
 
 aws_id = secret['AWS']['ID']
@@ -41,7 +42,7 @@ def main():
     headers = api.get_headers(client_id, client_secret)
 
     # RDS DB 조회 - artist 모든 id 조회
-    cursor.execute("SELECT id FROM artists LIMIT 10")
+    cursor.execute("SELECT id FROM artists")
     artist_ids = [i for (i,) in cursor.fetchall()]
     conn.commit()
     cursor.close()
@@ -56,8 +57,8 @@ def main():
     # 앨범 track 정보 수집
     top_tracks = []
     params = {'country' : 'US'}
-
-    for artist_id in artist_ids:
+    print('-------- 앨범 track 정보 수집 --------')
+    for artist_id in tqdm(artist_ids):
         tracks = api.get_tracks(artist_id, params = params)
 
         for track in tracks:
@@ -71,7 +72,7 @@ def main():
                                     })
                 top_tracks.append(top_track)
 
-    # s3 저장을 위한 
+    # s3 저장을 위한 parquet화
     track_ids = [i['id'][0] for i in top_tracks]
 
     top_tracks = pd.DataFrame(top_tracks)
@@ -87,7 +88,7 @@ def main():
                         aws_access_key_id = aws_id,
                         aws_secret_access_key = aws_key
                         )
-    ob = s3.Object('spotify-artists', 'top-tracks/dt={}/top-tracks.parquet'.format(dt))
+    ob = s3.Object('oo-spotify', 'top-tracks/dt={}/top-tracks.parquet'.format(dt))
     data = open('top-tracks.parquet', 'rb')
     ob.put(Body = data)
 
@@ -95,12 +96,13 @@ def main():
     tracks_batch = [track_ids[i: i+100] for i in range(0, len(track_ids), 100)]
 
     audio_features = []
-
-    for i in tracks_batch:
+    print('-------- audio features 정보 수집 --------')
+    for i in tqdm(tracks_batch):
         ids = ','.join(i)
         audio = api.get_audio(ids)
         audio_features.extend(audio)
 
+    # s3 저장을 위한 parquet화
     audio_features = pd.DataFrame(audio_features)
     audio_features.to_parquet('audio-features.parquet',
                                 engine = 'pyarrow',
@@ -113,7 +115,7 @@ def main():
                         aws_secret_access_key = aws_key
                         )
 
-    ob = s3.Object('spotify-artists', 'audio-features/dt={}/audio_features.parquet'.format(dt))
+    ob = s3.Object('oo-spotify', 'audio-features/dt={}/audio_features.parquet'.format(dt))
     data = open('audio-features.parquet', 'rb')
     ob.put(Body = data)
 
