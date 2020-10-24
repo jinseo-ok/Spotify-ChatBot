@@ -29,13 +29,6 @@ client_secret = secret['Spotify']['client_secret']
 #     'pw' : secret['Spotify']['pw']
 # }
 
-db_params = {
-    'host' : 'moondb.csctoaeodhiy.ap-northeast-2.rds.amazonaws.com',
-    'port' : 3306,
-    'username' : 'admin',
-    'database' : 'production',
-    'pw' : '12345678'
-}
 
 aws_id = secret['AWS']['ID']
 aws_key = secret['AWS']['KEY']
@@ -47,17 +40,17 @@ def main():
 
     headers = api.get_headers(client_id, client_secret)
 
-    #  RDS DB 조회 - artist 모든 id 조회
+    # RDS DB 조회 - artist 모든 id 조회
     cursor.execute("SELECT id FROM artists LIMIT 10")
     artist_ids = [i for (i,) in cursor.fetchall()]
     conn.commit()
     cursor.close()
 
     top_track_keys = {
-        "id": "id",
-        "name": "name",
-        "popularity": "popularity",
-        "external_url": "external_urls.spotify"
+        'id' : 'id',
+        'name' : 'name',
+        'popularity' : 'popularity',
+        'external_url' : 'external_urls.spotify'
     }
 
     # 앨범 track 정보 수집
@@ -70,11 +63,15 @@ def main():
         for track in tracks:
             top_track = {}
             for k, v in top_track_keys.items():
-                top_track.update({k: jsonpath.jsonpath(i, v)})
-                top_track.update({'artist_id': id})
+                top_track.update({
+                                    k : jsonpath.jsonpath(track, v)
+                                    })
+                top_track.update({
+                                    'artist_id' : artist_id
+                                    })
                 top_tracks.append(top_track)
 
-    # track_ids
+    # s3 저장을 위한 
     track_ids = [i['id'][0] for i in top_tracks]
 
     top_tracks = pd.DataFrame(top_tracks)
@@ -94,7 +91,7 @@ def main():
     data = open('top-tracks.parquet', 'rb')
     ob.put(Body = data)
 
-    # S3 import
+    # audio features 정보 수집
     tracks_batch = [track_ids[i: i+100] for i in range(0, len(track_ids), 100)]
 
     audio_features = []
@@ -115,6 +112,7 @@ def main():
                         aws_access_key_id = aws_id,
                         aws_secret_access_key = aws_key
                         )
+
     ob = s3.Object('spotify-artists', 'audio-features/dt={}/audio_features.parquet'.format(dt))
     data = open('audio-features.parquet', 'rb')
     ob.put(Body = data)
