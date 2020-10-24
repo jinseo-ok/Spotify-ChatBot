@@ -16,17 +16,17 @@ def main():
     client_secret = secret['Spotify']['client_secret']
 
     db_params = {
-        host : secret['Spotify']['host']
-        port : secret['Spotify']['port']
-        username : secret['Spotify']['username']
-        database : secret['Spotify']['database']
-        pw : secret['Spotify']['pw']
+        'host' : secret['Spotify']['host'],
+        'port' : secret['Spotify']['port'],
+        'username' : secret['Spotify']['username'],
+        'database' : secret['Spotify']['database'],
+        'pw' : secret['Spotify']['pw']
     }
 
     # DB 접속
-    cursor = rdb.connectDB(**db_params)
+    conn, cursor = rdb.connectDB(**db_params)
 
-    # DB 조회 - artist 모든 id 조회 
+    # RDS DB 조회 - artist 모든 id 조회 
     cursor.execute('SELECT id FROM artists')
     artist_ids = [i for (i,) in cursor.fetchall()]
     conn.commit()

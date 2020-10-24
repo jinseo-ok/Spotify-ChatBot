@@ -17,11 +17,11 @@ def main():
     client_secret = secret['Spotify']['client_secret']
 
     db_params = {
-        host : secret['Spotify']['host']
-        port : secret['Spotify']['port']
-        username : secret['Spotify']['username']
-        database : secret['Spotify']['database']
-        pw : secret['Spotify']['pw']
+        'host' : secret['Spotify']['host'],
+        'port' : secret['Spotify']['port'],
+        'username' : secret['Spotify']['username'],
+        'database' : secret['Spotify']['database'],
+        'pw' : secret['Spotify']['pw']
     }
 
     # DB 접속
@@ -65,7 +65,7 @@ def connectDB(host, username, pw, database, port):
         print('DB connect error')
         sys.exit(1)
 
-    return cursor
+    return conn, cursor
 
 
 # INSERT

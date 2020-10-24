@@ -132,13 +132,24 @@ def get_artistInfo(query):
 # 앨범 track 정보 수집
 def get_tracks(artist_id, params):
     headers = get_headers(client_id, client_secret)
-    endpoint = 'https://api.spotify.com/v1/artists/{id}/top-tracks'.format(artist_id)
+    endpoint = 'https://api.spotify.com/v1/artists/{}/top-tracks'.format(artist_id)
 
     response = get_API(endpoint, params = params, headers = headers)
     data = response.json()
-    tracks = data['track']
+    tracks = data['tracks']
 
     return tracks
+
+def get_audio(artist_id):
+    headers = get_headers(client_id, client_secret)
+    endpoint = "https://api.spotify.com/v1/audio-features/?ids={}".format(artist_id)
+
+    response = get_API(endpoint, headers = headers)
+    data = response.json()
+    audio = data['audio_reatures']
+
+    return audio
+
 
 if __name__ == '__main__':
     main()
