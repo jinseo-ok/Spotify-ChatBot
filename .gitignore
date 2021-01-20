@@ -1,2 +1,9 @@
 *.json
-
+*.csv
+*.xlsx
+*.parquet
+*.pptx
+*.pdf
+*.jpeg
+*.png
+*.jpg
