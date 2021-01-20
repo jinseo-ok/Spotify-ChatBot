@@ -7,3 +7,7 @@
 *.jpeg
 *.png
 *.jpg
+*.DS_Store
+__pycache__
+
+
