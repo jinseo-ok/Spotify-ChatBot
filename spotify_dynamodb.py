@@ -9,7 +9,7 @@ import spotify_api as api
 import spotify_rdb as rdb
 
 def main():
-    with open(os.path.join('..', 'secret.json'), 'r') as f:
+    with open(os.path.join('..', 'Config.json'), 'r') as f:
         secret = json.load(f)
 
     client_id = secret['Spotify']['client_id']
