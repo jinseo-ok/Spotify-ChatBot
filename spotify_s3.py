@@ -16,23 +16,22 @@ from tqdm import tqdm
 global client_id
 global client_secret
 
-with open(os.path.join('..', 'secret.json'), 'r') as f:
-    secret = json.load(f)
+with open(os.path.join('..', 'Config.json'), 'r') as f:
+    config = json.load(f)
 
-client_id = secret['Spotify']['client_id']
-client_secret = secret['Spotify']['client_secret']
+client_id = config['Spotify']['client_id']
+client_secret = config['Spotify']['client_secret']
 
 db_params = {
-    'host' : secret['Spotify']['host'],
-    'port' : secret['Spotify']['port'],
-    'username' : secret['Spotify']['username'],
-    'database' : secret['Spotify']['database'],
-    'pw' : secret['Spotify']['pw']
+    'host' : config['Spotify']['host'],
+    'port' : config['Spotify']['port'],
+    'username' : config['Spotify']['username'],
+    'database' : config['Spotify']['database'],
+    'pw' : config['Spotify']['pw']
 }
 
-
-aws_id = secret['AWS']['ID']
-aws_key = secret['AWS']['KEY']
+aws_id = config['AWS']['ID']
+aws_key = config['AWS']['KEY']
 
 def main():
 

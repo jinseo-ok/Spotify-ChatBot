@@ -10,17 +10,17 @@ import spotify_rdb as rdb
 
 def main():
     with open(os.path.join('..', 'Config.json'), 'r') as f:
-        secret = json.load(f)
+        config = json.load(f)
 
-    client_id = secret['Spotify']['client_id']
-    client_secret = secret['Spotify']['client_secret']
+    client_id = config['Spotify']['client_id']
+    client_secret = config['Spotify']['client_secret']
 
     db_params = {
-        'host' : secret['Spotify']['host'],
-        'port' : secret['Spotify']['port'],
-        'username' : secret['Spotify']['username'],
-        'database' : secret['Spotify']['database'],
-        'pw' : secret['Spotify']['pw']
+        'host' : config['Spotify']['host'],
+        'port' : config['Spotify']['port'],
+        'username' : config['Spotify']['username'],
+        'database' : config['Spotify']['database'],
+        'pw' : config['Spotify']['pw']
     }
 
     # DB 접속

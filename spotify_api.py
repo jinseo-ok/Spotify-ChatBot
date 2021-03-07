@@ -12,11 +12,11 @@ import csv
 global client_id
 global client_secret
 
-with open(os.path.join('..', 'secret.json'), 'r') as f:
-    secret = json.load(f)
+with open(os.path.join('..', 'Config.json'), 'r') as f:
+    config = json.load(f)
 
-client_id = secret['Spotify']['client_id']
-client_secret = secret['Spotify']['client_secret']
+client_id = config['Spotify']['client_id']
+client_secret = config['Spotify']['client_secret']
 
 def main():
     # artist_list = pd.read_csv('artist_list.csv', header = None)
